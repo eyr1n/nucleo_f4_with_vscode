@@ -31,8 +31,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 project(${CMAKE_PROJECT_NAME})
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
+include(FetchContent)
+FetchContent_Declare(eigen
+    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+    GIT_TAG 3.4.0
+    GIT_SHALLOW TRUE
+    SOURCE_SUBDIR invalid
+)
+FetchContent_MakeAvailable(eigen)
+
 # Enable CMake support for ASM and C languages
-enable_language(C ASM)
+enable_language(C CXX ASM)
 
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME})
@@ -48,11 +57,13 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    Core/Src/cppmain.cpp
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    ${eigen_SOURCE_DIR}
 )
 
 # Add project symbols (macros)
@@ -65,4 +76,9 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
 
     # Add user defined libraries
+    "-u _printf_float"
+)
+
+target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE
+    cxx_std_23
 )
